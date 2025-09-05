@@ -7,6 +7,8 @@ import java.io.BufferedWriter;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.lang.reflect.Field;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 import org.farmon.farmonclient.FarmonClient;
@@ -24,15 +26,19 @@ public class BatchService {
         FarmonDTO farmondto= new FarmonDTO();
         FarmonClient clientService = new FarmonClient();
         
-        String filePath = "/home/sb/Downloads/expenserpt.csv";
+        LocalDate today = LocalDate.now();
+        int year = today.getYear();              // Gets year as integer, e.g., 2025
+        LocalDate prevMonth = today.minusMonths(1);
+        DateTimeFormatter mmmFormatter = DateTimeFormatter.ofPattern("MMM");
+        String prevMonthMMM = prevMonth.format(mmmFormatter);
+        String filePath = "/home/sb/Downloads/expense"+prevMonthMMM+String.valueOf(year)+".csv";
         
         farmondto = clientService.callMonthlyAppResRptService(farmondto);        
         List<ResourceCropDTO> rescroplist = farmondto.getRescroplist();
         List<String> stringListApp = new ArrayList<>();
         String norecStringApp = "";
         String norecStringExp = "";
-        if (rescroplist.isEmpty()) {
-            
+        if (!rescroplist.isEmpty()) {            
             for (int i = 0; i < rescroplist.size(); i++) {
                 stringListApp.add(convertToCsv(rescroplist.get(i)));
             }
@@ -43,7 +49,7 @@ public class BatchService {
         farmondto = clientService.callMonthlyExpRptService(farmondto);
         List<ExpenseDTO> expenselist = farmondto.getExpenselist(); 
         List<String> stringLstExpense = new ArrayList<>();
-        if (expenselist.isEmpty()) {            
+        if (!expenselist.isEmpty()) {            
             for (int i = 0; i < expenselist.size(); i++) {
                 stringLstExpense.add(convertToCsv(expenselist.get(i)));
             }
@@ -71,6 +77,8 @@ public class BatchService {
                     bw.newLine();
                 }
             }
+            bw.newLine();//next report
+            
             mainHeader = "Monthly expense list";
             headerText = "Category,Name,Date,Cost";
             
