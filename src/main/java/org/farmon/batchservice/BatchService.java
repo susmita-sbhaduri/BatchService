@@ -12,6 +12,7 @@ import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 import org.farmon.farmonclient.FarmonClient;
+import org.farmon.farmondto.BatchExpenseDTO;
 import org.farmon.farmondto.ExpenseDTO;
 import org.farmon.farmondto.FarmonDTO;
 import org.farmon.farmondto.ResourceCropDTO;
@@ -33,73 +34,34 @@ public class BatchService {
         String prevMonthMMM = prevMonth.format(mmmFormatter);
         String filePath = "/home/sb/Downloads/expense"+prevMonthMMM+String.valueOf(year)+".csv";
         
-        farmondto = clientService.callMonthlyAppResRptService(farmondto);        
-        List<ResourceCropDTO> rescroplist = farmondto.getRescroplist();
-        List<String> stringListApp = new ArrayList<>();
-        String norecStringApp = "";
+        farmondto = clientService.callMonthlyExpRptService(farmondto);        
+        List<BatchExpenseDTO> exprptlist = farmondto.getExpenselistrpt();
+        List<String> stringListExp = new ArrayList<>();
         String norecStringExp = "";
-        if (!rescroplist.isEmpty()) {            
-            for (int i = 0; i < rescroplist.size(); i++) {
-                stringListApp.add(convertToCsv(rescroplist.get(i)));
-            }
-        } else {
-            norecStringApp = "no resource application record found for this month";
-        }
-        
-        farmondto = clientService.callMonthlyExpRptService(farmondto);
-        List<ExpenseDTO> expenselist = farmondto.getExpenselist(); 
-        List<String> stringLstExpense = new ArrayList<>();
-        if (!expenselist.isEmpty()) {            
-            for (int i = 0; i < expenselist.size(); i++) {
-                stringLstExpense.add(convertToCsv(expenselist.get(i)));
+        if (!exprptlist.isEmpty()) {            
+            for (int i = 0; i < exprptlist.size(); i++) {
+                stringListExp.add(convertToCsv(exprptlist.get(i)));
             }
         } else {
             norecStringExp = "no expense record found for this month";
         }
-        
-        String mainHeader = "Applied resource cost";
-        String headerText = "Resource,Applied Date,Cost";       
+        String headerText = "Category,Name,Date,Cost";       
         
         try (BufferedWriter bw = new BufferedWriter(new FileWriter(filePath))) {
-            // Write main header
-            bw.write(mainHeader);
-            bw.newLine();
             // Write header
             bw.write(headerText);
             bw.newLine();
             // Write each row
-            if (stringListApp.isEmpty()) {
-                bw.write(norecStringApp);
-                bw.newLine();
-            } else {
-                for (String line : stringListApp) {
-                    bw.write(line);
-                    bw.newLine();
-                }
-            }
-            bw.newLine();//next report
-            
-            mainHeader = "Monthly expense list";
-            headerText = "Category,Name,Date,Cost";
-            
-            // Write main header
-            bw.write(mainHeader);
-            bw.newLine();
-            // Write header
-            bw.write(headerText);
-            bw.newLine();
-            if (stringLstExpense.isEmpty()) {
+            if (stringListExp.isEmpty()) {
                 bw.write(norecStringExp);
                 bw.newLine();
             } else {
-                for (String line : stringLstExpense) {
+                for (String line : stringListExp) {
                     bw.write(line);
                     bw.newLine();
                 }
             }
         }
-        
-//        String temp = convertToCsv(rescroplist.get(0));
     }
     
     public static String convertToCsv(Object obj) {
