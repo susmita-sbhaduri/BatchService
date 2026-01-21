@@ -12,6 +12,7 @@ import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 import org.farmon.farmonclient.FarmonClient;
+import org.farmon.farmondto.AllExpenseReportDTO;
 import org.farmon.farmondto.BatchExpenseDTO;
 import org.farmon.farmondto.ExpenseDTO;
 import org.farmon.farmondto.FarmonDTO;
@@ -35,7 +36,7 @@ public class BatchService {
         String filePath = "/home/sb/Downloads/expense"+prevMonthMMM+String.valueOf(year)+".csv";
         
         farmondto = clientService.callMonthlyExpRptService(farmondto);        
-        List<BatchExpenseDTO> exprptlist = farmondto.getExpenselistrpt();
+        List<AllExpenseReportDTO> exprptlist = farmondto.getAllexplist();
         List<String> stringListExp = new ArrayList<>();
         String norecStringExp = "";
         if (!exprptlist.isEmpty()) {            
